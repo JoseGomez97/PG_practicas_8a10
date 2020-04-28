@@ -39,20 +39,20 @@ void MyRender::setup() {
 
   auto m = std::make_shared<Mesh>();
   std::vector<glm::vec3> vs;
-  vs.push_back(glm::vec3(-32.0, 0.0, 32.0));
-  vs.push_back(glm::vec3(32.0, 0.0, 32.0));
-  vs.push_back(glm::vec3(32.0, 0.0, -32.0));
-  vs.push_back(glm::vec3(-32.0, 0.0, -32.0));
+  vs.push_back(glm::vec3(-0.5, 0.0, 0.5));
+  vs.push_back(glm::vec3(0.5, 0.0, 0.5));
+  vs.push_back(glm::vec3(0.5, 0.0, -0.5));
+  vs.push_back(glm::vec3(-0.5, 0.0, -0.5));
   m->addVertices(vs);
 
   std::vector<glm::vec2> tc;
   tc.push_back(glm::vec2(0.0f, 0.0f));
-  tc.push_back(glm::vec2(1.0f, 0.0f));
-  tc.push_back(glm::vec2(1.0f, 1.0f));
-  tc.push_back(glm::vec2(0.0f, 1.0f));
+  tc.push_back(glm::vec2(1/64.0f, 0.0f));
+  tc.push_back(glm::vec2(1/64.0f, 1/64.0f));
+  tc.push_back(glm::vec2(0.0f, 1/64.0f));
   m->addTexCoord(0, tc);
 
-  DrawArrays *dc = new DrawArrays(GL_PATCHES, 0, 4);
+  DrawArraysInstanced *dc = new DrawArraysInstanced(GL_PATCHES, 0, 4, 64*64);
   dc->setVerticesPerPatch(4);
   m->addDrawCommand(dc);
   model.addMesh(m);

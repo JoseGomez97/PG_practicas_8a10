@@ -1,10 +1,12 @@
 #version 420 core
 
-layout (quads, equal_spacing, ccw) in;
+layout (quads, fractional_even_spacing, ccw) in;
 
 $GLMatrices
 
 uniform	sampler2D texUnitHeightMap;
+
+// Teselation evaluation
 
 in TESC_OUT {
 	vec2 textureCoord;
