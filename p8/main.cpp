@@ -31,6 +31,7 @@ private:
   std::shared_ptr<GLMatrices> mats;
   Model model;
   Texture2D heightMap;
+  Texture1D colorScale;
 };
 
 void MyRender::setup() {
@@ -72,6 +73,12 @@ void MyRender::setup() {
   // Cargamos la nueva textura desde un fichero
   heightMap.loadImage("../recursos/imagenes/heightmap.png");
   heightMap.bind(GL_TEXTURE0);
+
+  GLint texUnitColorScaleLoc = program->getUniformLocation("texUnitColorScale");
+  glUniform1i(texUnitColorScaleLoc, 1);
+
+  colorScale.loadImage("../recursos/imagenes/colorScaleHM.png");
+  colorScale.bind(GL_TEXTURE1);
 
   auto camera = std::make_shared<WalkCameraHandler>(20.0f); // Altura inicial de la cámara
   camera->setWalkSpeed(5.0f);
