@@ -54,3 +54,59 @@ ImGui: 1.70
 [Tue Apr 28 13:03:08 2020] INF: [bufferobject.cpp (19)] Buffer object 1 (Vertices) destruído
 [Tue Apr 28 13:03:08 2020] INF: [app.cpp (93)] App destroyed
 [Tue Apr 28 13:03:08 2020] INF: [log.cpp (46)] Closing Log
+
+[Mon May  4 18:11:16 2020] INF: [app.cpp (86)] App created
+[Mon May  4 18:11:16 2020] INF: [app.cpp (106)] Iniciando aplicación C:\Users\joseg\Desktop\PG_practicas_8a10\bin\ej8-2d.exe
+[Mon May  4 18:11:17 2020] INF: [sdladapter.cpp (489)] Window Properties: DOUBLE_BUFFER 
+[Mon May  4 18:11:17 2020] INF: [sdladapter.cpp (491)] SDL Window flags: SDL_WINDOW_OPENGL SDL_WINDOW_SHOWN SDL_WINDOW_RESIZABLE SDL_WINDOW_INPUT_FOCUS 
+[Mon May  4 18:11:17 2020] INF: [sdladapter.cpp (494)] SDL Context flags: SDL_GL_CONTEXT_DEBUG_FLAG 
+[Mon May  4 18:11:17 2020] INF: [window.cpp (128)] Ventana creada. Soporte de OpenGL: GL_VERSION_4_5
+[Mon May  4 18:11:17 2020] INF: [windowbuilder.cpp (75)] Información del driver:
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: GeForce GTX 1650 with Max-Q Design/PCIe/SSE2
+GL_VERSION: 4.5.0 NVIDIA 445.87
+GL_SHADING_LANGUAGE_VERSION: 4.50 NVIDIA
+Tamaño del framebuffer por defecto:
+   bits de color: (8, 8, 8, 0), depth: 0, stencil: 0
+
+[Mon May  4 18:11:17 2020] INF: [app.cpp (161)] Library versions
+PGUPV 64 bits Debug Revision: 2036
+Boost: 1_69
+SDL: Runtime: 2.0.8 Compiled: 2.0.8
+Assimp: 4.1.0
+GLEW: 2.2.0
+Par Shapes: http://github.prideout.net/shapes @ August 2016
+GLI: 0.8.3
+FreeImage: 3.18.0
+ImGui: 1.70
+[Mon May  4 18:11:17 2020] INF: [app.cpp (418)] No se han encontrado joysticks en el sistema
+[Mon May  4 18:11:17 2020] INF: [bufferobject.cpp (41)] Buffer object 1 ha reservado 48 bytes
+[Mon May  4 18:11:17 2020] INF: [bufferobject.cpp (41)] Buffer object 2 ha reservado 36 bytes
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.vert
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.frag
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/quads.tesc
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/quads.tese
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.vert
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.frag
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/isolines.tesc
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/isolines.tese
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.vert
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.frag
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/isolines.tesc
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/isolines-points.tese
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.vert
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/shader.frag
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (173)] El shader ya estaba compilado
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/triangles.tesc
+[Mon May  4 18:11:17 2020] INF: [shader.cpp (169)] Compilando ../ej8-2/triangles.tese
+[Mon May  4 18:11:35 2020] INF: [app.cpp (599)] Aplicación terminada normalmente
+[Mon May  4 18:11:35 2020] INF: [bufferobject.cpp (19)] Buffer object 2 (Vertices) destruído
+[Mon May  4 18:11:35 2020] INF: [bufferobject.cpp (19)] Buffer object 1 (Vertices) destruído
+[Mon May  4 18:11:35 2020] INF: [app.cpp (93)] App destroyed
+[Mon May  4 18:11:35 2020] INF: [log.cpp (46)] Closing Log

@@ -195,7 +195,7 @@ std::string App::collectLibVersions() {
 #ifdef TESTING
 		<< " for Testing"
 #endif
-		<< " Revision: 2034"
+		<< " Revision: 2036"
 		"\n";
 
 	// Boost version

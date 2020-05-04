@@ -1,16 +1,17 @@
-
 #pragma once
-
 
 #include <glm/glm.hpp>
 #include <memory>
 
 namespace PGUPV {
 	class Model;
+	class Axes;
 
 	class Camera {
 	public:
-		Camera() : viewMatrix(glm::mat4(1.0f)), projMatrix(glm::mat4(1.0f)) {};
+		Camera() : viewMatrix(1.0f), projMatrix(1.0f), frustumColor(0.2f, 0.2f, 0.2f, 1.0f), 
+			recomputeFrustum(true), axesScale{ 1.0f } {};
+		~Camera();
 		/**
 		Devuelve la matriz de la vista actual
 		*/
@@ -36,7 +37,7 @@ namespace PGUPV {
 		*/
 		glm::vec3 getCameraPos() const;
 		/**
-		Devuelve el FOV de la cámara, en radianes
+		Devuelve el FOV de la cámara
 		*/
 		float getFOV() const;
 		/**
@@ -63,9 +64,17 @@ namespace PGUPV {
 		Dibuja el volumen de la cámara
 		*/
 		void render() const;
+		/**
+		Establece el color con el que se dibujará el frustum
+		*/
+		void setFrustumColor(const glm::vec4 &color);
 	protected:
 		glm::mat4 viewMatrix, projMatrix;
+		glm::vec4 frustumColor;
 		mutable std::shared_ptr<Model> frustum;
+		mutable bool recomputeFrustum;
+		mutable float axesScale;
+		static std::unique_ptr<Axes> axes;
+		void updateVerticesInFrustum() const;
 	};
-
 };

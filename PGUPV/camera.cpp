@@ -1,7 +1,6 @@
-#include <memory>                             // for shared_ptr, make_shared, static_pointer_cast
-
 #include "camera.h"
 #include "model.h"
+#include "stockModels.h"
 #include "indexedBindingPoint.h"
 #include "stockPrograms.h"
 #include "drawCommand.h"                      // for DrawElements
@@ -13,6 +12,9 @@ using PGUPV::Camera;
 using PGUPV::GLMatrices;
 using PGUPV::Mesh;
 
+std::unique_ptr<PGUPV::Axes> Camera::axes;
+
+Camera::~Camera() = default;
 
 glm::vec3 Camera::getUpDirection() const {
 	return glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
@@ -79,53 +81,63 @@ float Camera::getFar() const {
 	return far;
 }
 
-void Camera::setViewMatrix(const glm::mat4 &viewM) {
-	this->viewMatrix = viewM;
+void Camera::setViewMatrix(const glm::mat4 &m) {
+	viewMatrix = m;
 }
 
-void Camera::setProjMatrix(const glm::mat4 &projM) {
-	this->projMatrix = projM;
-	frustum.reset();
+void Camera::updateVerticesInFrustum() const {
+
+	glm::mat4 ip = glm::inverse(projMatrix);
+
+	glm::vec4 trnear = ip * glm::vec4(1.0f, 1.0f, -1.0, 1.0);
+	glm::vec4 blnear = ip * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0);
+
+	glm::vec4 trfar = ip * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 blfar = ip * glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f);
+
+	trnear = trnear / trnear.w;
+	blnear = blnear / blnear.w;
+
+	trfar = trfar / trfar.w;
+	blfar = blfar / blfar.w;
+
+	axesScale = (trfar.z - trnear.z) / 10.0f;
+	std::vector<glm::vec4> vertices{
+	blnear,
+	glm::vec4(trnear.x, blnear.y, blnear.z, 1.0),
+	trnear,
+	glm::vec4(blnear.x, trnear.y, trnear.z, 1.0),
+
+	blfar,
+	glm::vec4(trfar.x, blfar.y, blfar.z, 1.0),
+	trfar,
+	glm::vec4(blfar.x, trfar.y, trfar.z, 1.0)
+	};
+
+	auto &mesh = frustum->getMesh(0);
+	auto bo = mesh.getBufferObject(Mesh::BufferObjectType::VERTICES);
+	gl_copy_write_buffer.bind(bo);
+	gl_copy_write_buffer.write(&vertices[0].x, static_cast<unsigned int>(sizeof(glm::vec4) * vertices.size()), 0);
+}
+
+
+void Camera::setProjMatrix(const glm::mat4 &m) {
+	projMatrix = m;
+	recomputeFrustum = true;
 }
 
 void Camera::render() const {
 	if (!frustum) {
-		glm::mat4 ip = glm::inverse(projMatrix);
-
-		glm::vec4 trnear = ip * glm::vec4(1.0f, 1.0f, -1.0, 1.0);
-		glm::vec4 blnear = ip * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0);
-
-		glm::vec4 trfar = ip * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		glm::vec4 blfar = ip * glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f);
-
-		trnear = trnear / trnear.w;
-		blnear = blnear / blnear.w;
-
-		trfar = trfar / trfar.w;
-		blfar = blfar / blfar.w;
-
 		auto mesh = std::make_shared<Mesh>();
-
-		std::vector<glm::vec4> vertices{
-			blnear,
-			glm::vec4(trnear.x, blnear.y, blnear.z, 1.0),
-			trnear,
-			glm::vec4(blnear.x, trnear.y, trnear.z, 1.0),
-
-			blfar,
-			glm::vec4(trfar.x, blfar.y, blfar.z, 1.0),
-			trfar,
-			glm::vec4(blfar.x, trfar.y, trfar.z, 1.0)
-		};
-		mesh->addVertices(vertices);
+		mesh->addVertices(std::vector<glm::vec4>(8, glm::vec4(0.0f)));
 
 		std::vector<ushort> indices{
-			0, 4, 5, 1, 0, 3, 7, 4, 0xFFFF,
-			6, 2, 3, 7, 6, 5, 1, 2
+		  0, 4, 5, 1, 0, 3, 7, 4, 0xFFFF,
+		  6, 2, 3, 7, 6, 5, 1, 2
 		};
 
 		mesh->addIndices(indices);
-		mesh->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+		mesh->setColor(frustumColor);
 		auto de = new PGUPV::DrawElements(GL_LINE_STRIP, 17, GL_UNSIGNED_SHORT, nullptr);
 		de->setRestartIndex(0xFFFF);
 		de->setPrimitiveRestart();
@@ -135,15 +147,23 @@ void Camera::render() const {
 		frustum = std::make_shared<Model>();
 		frustum->addMesh(mesh);
 
+		Camera::axes = std::make_unique<Axes>();
 	}
+
+	if (recomputeFrustum) {
+		updateVerticesInFrustum();
+		recomputeFrustum = false;
+	}
+
+	auto prev = PGUPV::ConstantIllumProgram::use();
 
 	auto bo = gl_uniform_buffer.getBound(UBO_GL_MATRICES_BINDING_INDEX);
 	auto mats = std::static_pointer_cast<GLMatrices>(bo);
 	if (mats) {
-		mats->pushMatrix(PGUPV::GLMatrices::MODEL_MATRIX);
-		mats->loadIdentity(PGUPV::GLMatrices::MODEL_MATRIX);
+		mats->pushMatrix(GLMatrices::MODEL_MATRIX);
+		mats->loadIdentity(GLMatrices::MODEL_MATRIX);
 
-		mats->translate(PGUPV::GLMatrices::MODEL_MATRIX, getCameraPos());
+		mats->translate(GLMatrices::MODEL_MATRIX, getCameraPos());
 
 		mat4 rot = glm::mat4(
 			glm::vec4(getRightDirection(), 0.0f),
@@ -151,13 +171,26 @@ void Camera::render() const {
 			glm::vec4(-getViewDirection(), 0.0f),
 			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-		mats->multMatrix(PGUPV::GLMatrices::MODEL_MATRIX, rot);
+		mats->multMatrix(GLMatrices::MODEL_MATRIX, rot);
+		mats->pushMatrix(GLMatrices::MODEL_MATRIX);
+		mats->scale(GLMatrices::MODEL_MATRIX, axesScale);
+		axes->render();
+		mats->popMatrix(GLMatrices::MODEL_MATRIX);
 	}
 
-	auto prev = PGUPV::ConstantIllumProgram::use();
+	
 	frustum->render();
 	if (prev) prev->use();
 
 	if (mats)
 		mats->popMatrix(PGUPV::GLMatrices::MODEL_MATRIX);
+}
+
+void Camera::setFrustumColor(const glm::vec4 & color)
+{
+	frustumColor = color;
+	if (frustum) {
+		auto &mesh = frustum->getMesh(0);
+		mesh.setColor(color);
+	}
 }
