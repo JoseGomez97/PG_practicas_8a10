@@ -81,7 +81,10 @@ void MyRender::setup() {
   material->setNormalMapTexture(tnormales);
 
   // Asignamos el material a todas las mallas
-  plane.accept([material](Mesh &m) { m.setMaterial(material); });
+  plane.accept([material](Mesh &m) {
+	  m.setMaterial(material); 
+	  m.setTangent(vec3(1.0f, 0.0f, 0.0f));
+	});
 
   buildGUI();
 	App::getInstance().getWindow().showGUI();
@@ -142,7 +145,8 @@ void MyRender::buildGUI() {
 	showAxis = std::make_shared<CheckBoxWidget>("Mostrar ejes", false);
 	panel->addWidget(showAxis);
 
-	
+	panel->addWidget(std::make_shared<FloatSliderWidget>("Escala", 0.02f, 0.02f, 5.0f, ashader, "scaleFactor"));
+	panel->addWidget(std::make_shared<FloatSliderWidget>("Bias", 0.01f, 0.01f, 1.0f, ashader, "biasValue"));
 }
 
 int main(int argc, char *argv[]) {
