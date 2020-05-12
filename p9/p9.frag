@@ -6,7 +6,7 @@ layout (binding=$TEXDIFF) uniform sampler2D colores;
 layout (binding=$TEXNORM) uniform sampler2D normales;
 layout (binding=$TEXSPEC) uniform sampler2D brillos;
 // Descomenta este sampler cuando estés preparado para usarlo
-//layout (binding=$TEXHEIGHT) uniform sampler2D alturas;
+layout (binding=$TEXHEIGHT) uniform sampler2D alturas;
 
 uniform bool useParallax;
 uniform float scaleFactor;
@@ -17,7 +17,7 @@ in vec3 Lvert;
 in vec3 Vvert;
 out vec4 fragColor;
 
-vec4 iluminacion(vec4 color, vec3 pos, vec3 N, vec3 V, vec3 L, float b) {
+vec4 iluminacion(vec4 color, vec3 N, vec3 V, vec3 L, float b) {
 
     // color = Componente emisiva del material
 
@@ -31,14 +31,8 @@ vec4 iluminacion(vec4 color, vec3 pos, vec3 N, vec3 V, vec3 L, float b) {
         // Multiplicador de la componente especular
         vec3 R = reflect(-L, N);
         specularMult = max(0.0, dot(R, V));
-        //specularMult = pow(specularMult, shininess);
+        specularMult = pow(specularMult, 20);
     }
-    
-    // Distancia (desde vértice a la fuente)
-    float d = distance(vec3(lights[0].positionEye), pos);
-
-    // Factor atenuación
-    float factorAtenuacion = 1 / max(1, lights[0].attenuation[0] + lights[0].attenuation[1] * d + lights[0].attenuation[2] * d * d);
 
     // Efecto foco
     float efectoFoco;
@@ -55,10 +49,10 @@ vec4 iluminacion(vec4 color, vec3 pos, vec3 N, vec3 V, vec3 L, float b) {
         efectoFoco = pow(max(dot(-L,lights[0].spotDirectionWorld), 0), lights[0].spotExponent);
     }
 
-    color += factorAtenuacion * efectoFoco *
+    color += efectoFoco *
                 ( lights[0].ambient*0 +
-                lights[0].diffuse * diffuseMult * 0.2 +
-                lights[0].specular * specularMult * b * 0.2 );
+                lights[0].diffuse * diffuseMult * 0.15 +
+                lights[0].specular * specularMult * b * 0.8 );
 
   return color;
 }
@@ -66,16 +60,26 @@ vec4 iluminacion(vec4 color, vec3 pos, vec3 N, vec3 V, vec3 L, float b) {
 void main()
 {
 
-	if (useParallax) {
-		fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-	} else {
-        vec3 l = normalize(Lvert);
-        vec3 v = normalize(Vvert);
+    vec3 l = normalize(Lvert);
+    vec3 v = normalize(Vvert);
 
-		vec4 c = texture(colores, TexCoord);
-		vec3 n = normalize(((texture(normales, TexCoord).xyz) - vec3(0.5, 0.5, 0.5)) * 2.0);
-		vec4 b = texture(brillos, TexCoord);
-		
-        fragColor = iluminacion(c, -v, n, v, l, b.x);
+	if (useParallax) {
+        float ht = texture(alturas, TexCoord).x;
+        float h = ht * scaleFactor - biasValue;
+
+        vec2 T_ajustada = TexCoord + h * v.xy;
+
+        vec4 c = texture(colores, T_ajustada);
+        vec3 n = normalize((texture(normales, T_ajustada).xyz - vec3(0.5, 0.5, 0.5)) * 2.0);
+	    vec4 b = texture(brillos, T_ajustada);
+
+        fragColor = iluminacion(c, n, v, l, b.x);
+
+	} else {
+        vec4 c = texture(colores, TexCoord);
+        vec3 n = normalize((texture(normales, TexCoord).xyz - vec3(0.5, 0.5, 0.5)) * 2.0);
+	    vec4 b = texture(brillos, TexCoord);
+
+        fragColor = iluminacion(c, n, v, l, b.x);
 	}
 }

@@ -25,6 +25,7 @@ endif()
 
 add_subdirectory(librerias/guipg) #Mandatory
 add_subdirectory(PGUPV) #Mandatory
+add_subdirectory(p10)
 add_subdirectory(ej9-1)
 add_subdirectory(ej9-2)
 add_subdirectory(ej9-3)

@@ -71,14 +71,17 @@ void MyRender::setup() {
 	tcolor->loadImage("../recursos/imagenes/rocas-color.png");
   auto tbrillo = std::make_shared<Texture2D>();
 	tbrillo->loadImage("../recursos/imagenes/rocas-gloss.png");
-  auto tnormales = std::make_shared<Texture2D>();
+	auto tnormales = std::make_shared<Texture2D>();
 	tnormales->loadImage("../recursos/imagenes/rocas-normales.png");
+	auto talturas = std::make_shared<Texture2D>();
+	talturas->loadImage("../recursos/imagenes/rocas-mapa-alturas.png");
 
 	// Asociamos las texturas a un material
   auto material = std::make_shared<Material>("bump-mapping");
   material->setDiffuseTexture(tcolor);
   material->setSpecularTexture(tbrillo);
   material->setNormalMapTexture(tnormales);
+  material->setHeightMapTexture(talturas);
 
   // Asignamos el material a todas las mallas
   plane.accept([material](Mesh &m) {
@@ -145,8 +148,8 @@ void MyRender::buildGUI() {
 	showAxis = std::make_shared<CheckBoxWidget>("Mostrar ejes", false);
 	panel->addWidget(showAxis);
 
-	panel->addWidget(std::make_shared<FloatSliderWidget>("Escala", 0.02f, 0.02f, 5.0f, ashader, "scaleFactor"));
-	panel->addWidget(std::make_shared<FloatSliderWidget>("Bias", 0.01f, 0.01f, 1.0f, ashader, "biasValue"));
+	panel->addWidget(std::make_shared<FloatSliderWidget>("Escala", 0.00f, 0.001f, 0.05f, ashader, "scaleFactor"));
+	panel->addWidget(std::make_shared<FloatSliderWidget>("Bias", 0.00f, 0.001f, 0.05f, ashader, "biasValue"));
 }
 
 int main(int argc, char *argv[]) {

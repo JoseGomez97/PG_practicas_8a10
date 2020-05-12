@@ -27,7 +27,7 @@ void main()
 	}
 	vec3 T = mat3(modelviewMatrix) * tangent;
 	vec3 B = cross(eN, T);
-	mat3 R = mat3(T, B, eN);
+	mat3 R = transpose(mat3(T, B, eN));
 
 	// Propagamos variables
 	Lvert = R * L;

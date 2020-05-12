@@ -80,3 +80,44 @@ ImGui: 1.70
 [Mon May  4 18:11:59 2020] INF: [bufferobject.cpp (19)] Buffer object 1 (GLMatrices) destruído
 [Mon May  4 18:11:59 2020] INF: [app.cpp (93)] App destroyed
 [Mon May  4 18:11:59 2020] INF: [log.cpp (46)] Closing Log
+
+[Mon May 11 17:28:26 2020] INF: [app.cpp (86)] App created
+[Mon May 11 17:28:26 2020] INF: [app.cpp (106)] Iniciando aplicación C:\Users\joseg\Desktop\PG_practicas_8a10\bin\ej8-4d.exe
+[Mon May 11 17:28:27 2020] INF: [sdladapter.cpp (489)] Window Properties: DOUBLE_BUFFER 
+[Mon May 11 17:28:27 2020] INF: [sdladapter.cpp (491)] SDL Window flags: SDL_WINDOW_OPENGL SDL_WINDOW_SHOWN SDL_WINDOW_RESIZABLE SDL_WINDOW_INPUT_FOCUS 
+[Mon May 11 17:28:27 2020] INF: [sdladapter.cpp (494)] SDL Context flags: SDL_GL_CONTEXT_DEBUG_FLAG 
+[Mon May 11 17:28:27 2020] INF: [window.cpp (128)] Ventana creada. Soporte de OpenGL: GL_VERSION_4_5
+[Mon May 11 17:28:27 2020] INF: [windowbuilder.cpp (75)] Información del driver:
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: GeForce GTX 1650 with Max-Q Design/PCIe/SSE2
+GL_VERSION: 4.5.0 NVIDIA 445.87
+GL_SHADING_LANGUAGE_VERSION: 4.50 NVIDIA
+Tamaño del framebuffer por defecto:
+   bits de color: (8, 8, 8, 0), depth: 24, stencil: 0
+
+[Mon May 11 17:28:27 2020] INF: [app.cpp (161)] Library versions
+PGUPV 64 bits Debug Revision: 2036
+Boost: 1_69
+SDL: Runtime: 2.0.8 Compiled: 2.0.8
+Assimp: 4.1.0
+GLEW: 2.2.0
+Par Shapes: http://github.prideout.net/shapes @ August 2016
+GLI: 0.8.3
+FreeImage: 3.18.0
+ImGui: 1.70
+[Mon May 11 17:28:27 2020] INF: [app.cpp (418)] No se han encontrado joysticks en el sistema
+[Mon May 11 17:28:27 2020] INF: [bindabletexture.cpp (42)] Textura de tipo GL_TEXTURE_2D_ARRAY creada con id 1
+[Mon May 11 17:28:27 2020] INF: [bufferobject.cpp (41)] Buffer object 1 ha reservado 368 bytes
+[Mon May 11 17:28:27 2020] INF: [glmatrices.cpp (160)] UBO GLMatrices creado
+[Mon May 11 17:28:27 2020] INF: [shader.cpp (169)] Compilando ../ej8-4/shader.vert
+[Mon May 11 17:28:27 2020] INF: [shader.cpp (169)] Compilando ../ej8-4/shader.frag
+[Mon May 11 17:28:27 2020] INF: [bufferobject.cpp (41)] Buffer object 2 ha reservado 48 bytes
+[Mon May 11 17:28:27 2020] INF: [bufferobject.cpp (41)] Buffer object 3 ha reservado 32 bytes
+[Mon May 11 17:28:27 2020] INF: [app.cpp (665)] Unidad de textura reservada para PGUPV: 191
+[Mon May 11 17:28:28 2020] INF: [app.cpp (599)] Aplicación terminada normalmente
+[Mon May 11 17:28:28 2020] INF: [bindabletexture.cpp (48)] Textura con id 1 destruída
+[Mon May 11 17:28:28 2020] INF: [bufferobject.cpp (19)] Buffer object 2 (Vertices) destruído
+[Mon May 11 17:28:28 2020] INF: [bufferobject.cpp (19)] Buffer object 3 (Coord. de textura (0)) destruído
+[Mon May 11 17:28:28 2020] INF: [bufferobject.cpp (19)] Buffer object 1 (GLMatrices) destruído
+[Mon May 11 17:28:28 2020] INF: [app.cpp (93)] App destroyed
+[Mon May 11 17:28:28 2020] INF: [log.cpp (46)] Closing Log
