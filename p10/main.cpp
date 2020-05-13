@@ -83,7 +83,7 @@ void MyRender::update(uint ms) {
     // Cálculo de la posición de la luz
     lightPosition = ci.interpolate(App::getInstance().getAppTime());
     alpha += glm::radians(45.0f) * ms / 1000.0f;
-    lightPosition2 = vec4(-3.0f * glm::sin(alpha), 2.0f, 3 * glm::cos(alpha), 0.0f);
+    lightPosition2 = vec4(-3.5f * glm::sin(alpha), 2.0f, 3.5f * glm::cos(alpha), 0.0f);
 }
 
 void MyRender::prepareFBOs(uint width, uint height) {
