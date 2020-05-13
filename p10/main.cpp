@@ -41,7 +41,7 @@ public:
 
 private:
   // Uniform Buffer Objects
-  std::shared_ptr<GLMatrices> mats, shadowMats;
+  std::shared_ptr<GLMatrices> mats, shadowMats, shadowMats2;
   std::shared_ptr<UBOLightSources> luces;
 
   // Objetos de la escena
@@ -51,59 +51,70 @@ private:
   Rect suelo;
 
   // Framebuffer object y textura para generar el shadow map
-  FBO fbo;
-  std::shared_ptr<Texture2D> depthTexture;
+  FBO fbo, fbo2;
+  std::shared_ptr<Texture2D> depthTexture, depthTexture2;
   uint currentTextureSize;
   // Programas
   Program gshader, shadowShader;
   std::shared_ptr<Program> zshader;
   // Esfera usada para mostrar la posición de la fuente
-  Sphere luz, luz2;
+  Sphere luz;
   // Cuadrilátero para dibujar el shadow map en pantalla
   Rect zbuffer;
   // ¿Mostrar el shadow map en pantalla?
   std::shared_ptr<CheckBoxWidget> showDepthMap;
   // Posición de la fuente en el espacio del mundo
-  vec4 lightPosition;
+  vec4 lightPosition, lightPosition2;
+  // Definición parámetro update ángulo segunda luz
+  float alpha;
   // Interpolador para mover la fuente en círculos
   CircularInterpolator ci;
   // Localización del uniform con la matriz de sombra
-  GLint shadowMatrixLoc;
+  GLint shadowMatrixLoc, shadowMatrixLoc2;
   // Tamaño actual de la ventana
   uint windowWidth, windowHeight;
-  void prepareFBO(uint width, uint height);
+  void prepareFBOs(uint width, uint height);
   void drawScene(std::shared_ptr<GLMatrices> mats, bool drawFloor = true);
   void buildGUI();
 
 };
 
-void MyRender::update(uint) {
-  // Cálculo de la posición de la luz
-  lightPosition = ci.interpolate(App::getInstance().getAppTime());
+void MyRender::update(uint ms) {
+    // Cálculo de la posición de la luz
+    lightPosition = ci.interpolate(App::getInstance().getAppTime());
+    alpha += glm::radians(45.0f) * ms / 1000.0f;
+    lightPosition2 = vec4(-3.0f * glm::sin(alpha), 2.0f, 3 * glm::cos(alpha), 0.0f);
 }
 
-void MyRender::prepareFBO(uint width, uint height) {
-  // Esta textura contendrá el shadow map
-  depthTexture = std::shared_ptr<Texture2D>(
-    new Texture2D(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE));
-  depthTexture->allocate(width, height, GL_DEPTH_COMPONENT32);
-  // Función de comparación
-  depthTexture->setCompareFunc(GL_LEQUAL);
-  // Vinculamos la textura al punto de vinculación del depth buffer del FBO
-  fbo.attach(GL_DEPTH_ATTACHMENT, depthTexture);
-  // Comprobamos que el FBO esté completo
-  if (!fbo.isComplete())
-    ERRT("FBO incompleto");
+void MyRender::prepareFBOs(uint width, uint height) {
+    // Esta textura contendrá el shadow map
+    depthTexture = std::shared_ptr<Texture2D>(
+        new Texture2D(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE));
+    depthTexture2 = std::shared_ptr<Texture2D>(
+        new Texture2D(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE));
+    depthTexture->allocate(width, height, GL_DEPTH_COMPONENT32);
+    depthTexture2->allocate(width, height, GL_DEPTH_COMPONENT32);
+    // Función de comparación
+    depthTexture->setCompareFunc(GL_LEQUAL);
+    depthTexture2->setCompareFunc(GL_LEQUAL);
+    // Vinculamos la textura al punto de vinculación del depth buffer del FBO
+    fbo.attach(GL_DEPTH_ATTACHMENT, depthTexture);
+    fbo2.attach(GL_DEPTH_ATTACHMENT, depthTexture2);
+    // Comprobamos que el FBO esté completo
+    if (!fbo.isComplete() || !fbo2.isComplete())
+        ERRT("FBO incompleto");
 }
 
 void MyRender::setup() {
   glClearColor(.7f, .7f, .7f, 1.0f);
   glEnable(GL_DEPTH_TEST);
   // Preparamos el FBO usado para dibujar el shadow map
-  prepareFBO(sizes[INITIAL_DEPTH_TEXTURE_SIZE_INDEX], sizes[INITIAL_DEPTH_TEXTURE_SIZE_INDEX]);
+  prepareFBOs(sizes[INITIAL_DEPTH_TEXTURE_SIZE_INDEX], sizes[INITIAL_DEPTH_TEXTURE_SIZE_INDEX]);
 
   // Posición de la luz en el sistema de coordenadas del mundo
   lightPosition = ci.interpolate(App::getInstance().getAppTime());
+  lightPosition2 = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
+  alpha = 0.0f;
 
   /* Preparamos los materiales que usaremos en nuestra escena */
   auto plastico_rojo = PGUPV::getMaterial(PredefinedMaterial::RED_PLASTIC);
@@ -146,27 +157,41 @@ void MyRender::setup() {
 
   // Localización del uniform con la matriz de sombra
   shadowMatrixLoc = gshader.getUniformLocation("shadowMatrix");
+  shadowMatrixLoc2 = gshader.getUniformLocation("shadowMatrix2");
   // Instalamos el shadow map en la unidad de textura 3
   GLint textureUnit = gshader.getUniformLocation("depthTexture");
   glUniform1i(textureUnit, 3);
+  
+  GLint textureUnit2 = gshader.getUniformLocation("depthTexture2");
+  glUniform1i(textureUnit2, 4);
 
   // Definición de los parámetros que no cambian de la fuente
   LightSourceParameters lp;
-  lp.ambient = vec4(.3, .3, .3, 1.0);
-  lp.diffuse = vec4(0.5, 0.5, 0.5, 1.0);
-  lp.specular = vec4(0.8, 0.8, 0.8, 1.0);
+  lp.ambient = vec4(.15, .15, .15, 1.0);
+  lp.diffuse = vec4(0.25, 0.25, 0.25, 1.0);
+  lp.specular = vec4(0.4, 0.4, 0.4, 1.0);
   luces->setLightSource(0, lp);
+
+  LightSourceParameters lp2;
+  lp2.ambient = vec4(.15, .15, .15, 1.0);
+  lp2.diffuse = vec4(0.25, 0.25, 0.25, 1.0);
+  lp2.specular = vec4(0.4, 0.4, 0.4, 1.0);
+  luces->setLightSource(1, lp2);
 
   // Este shader se encargará de calcular el shadow map
 
   // Esta es la shadow matrix, que usaremos para construir el shadow map desde
   // el punto de vista de la fuente
   shadowMats = GLMatrices::build();
+  shadowMats2 = GLMatrices::build();
   // Este es el frustum del shador map. Debería cubrir toda la escena, idealmente 
   // usando el menor volumen posible. Aquí lo definimos estáticamente.
   shadowMats->setMatrix(
-    GLMatrices::PROJ_MATRIX,
-    glm::frustum(-0.7f, .7f, -.7f, .7f, 1.5f, FRUSTUM_DEPTH));
+      GLMatrices::PROJ_MATRIX,
+      glm::frustum(-0.7f, .7f, -.7f, .7f, 1.5f, FRUSTUM_DEPTH));
+  shadowMats2->setMatrix(
+      GLMatrices::PROJ_MATRIX,
+      glm::frustum(-0.7f, .7f, -.7f, .7f, 1.5f, FRUSTUM_DEPTH));
   shadowShader.connectUniformBlock(shadowMats, UBO_GL_MATRICES_BINDING_INDEX);
   shadowShader.addAttributeLocation(Mesh::VERTICES, "position");
   shadowShader.loadFiles("../p10/shadowMap");
@@ -237,14 +262,28 @@ void MyRender::render() {
   glClear(GL_DEPTH_BUFFER_BIT);
   // Completamos la matriz de sombra usando la posición actual de la luz
   shadowMats->setMatrix(
-    GLMatrices::VIEW_MATRIX,
-    glm::lookAt(vec3(lightPosition), vec3(0.0), vec3(0.0, 1.0, 0.0)));
+      GLMatrices::VIEW_MATRIX,
+      glm::lookAt(vec3(lightPosition), vec3(0.0), vec3(0.0, 1.0, 0.0)));
   shadowShader.use();
   glDrawBuffer(GL_NONE);
   drawScene(shadowMats, false);
 
   // Desvinculamos el FBO (activando el Framebuffer por defecto)
   fbo.unbind(GL_DRAW_FRAMEBUFFER);
+
+  fbo2.bind(GL_DRAW_FRAMEBUFFER);
+  glViewport(0, 0, currentTextureSize, currentTextureSize);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  // Completamos la matriz de sombra usando la posición actual de la luz
+  shadowMats2->setMatrix(
+      GLMatrices::VIEW_MATRIX,
+      glm::lookAt(vec3(lightPosition2), vec3(0.0), vec3(0.0, 1.0, 0.0)));
+  shadowShader.use();
+  glDrawBuffer(GL_NONE);
+  drawScene(shadowMats2, false);
+
+  // Desvinculamos el FBO (activando el Framebuffer por defecto)
+  fbo2.unbind(GL_DRAW_FRAMEBUFFER);
 
   // Dibujamos la escena normalmente
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -261,9 +300,16 @@ void MyRender::render() {
   lp.positionEye = viewMatrix * lightPosition;
   luces->setLightSource(0, lp);
 
+  LightSourceParameters lp2 = luces->getLightSource(1);
+  lp2.positionWorld = lightPosition2;
+  lp2.positionEye = viewMatrix * lightPosition2;
+  luces->setLightSource(1, lp2);
+
   // Calculando la matriz de sombra
   glm::mat4 shadowMatrix =
-    scaleBiasMatrix * shadowMats->getMatrix(GLMatrices::MODELVIEWPROJ_MATRIX);
+      scaleBiasMatrix * shadowMats->getMatrix(GLMatrices::MODELVIEWPROJ_MATRIX);
+  glm::mat4 shadowMatrix2 =
+      scaleBiasMatrix * shadowMats2->getMatrix(GLMatrices::MODELVIEWPROJ_MATRIX);
 
   // Finalmente, dibujamos la escena usando la textura de profundidad calculada
   // en el paso anterior
@@ -276,6 +322,15 @@ void MyRender::render() {
   drawScene(mats);
   depthTexture->setCompareMode(GL_NONE);
 
+
+  glUniformMatrix4fv(shadowMatrixLoc2, 1, GL_FALSE, &shadowMatrix2[0][0]);
+  depthTexture2->bind(GL_TEXTURE4);
+
+  // Modo de comparación
+  depthTexture2->setCompareMode(GL_COMPARE_REF_TO_TEXTURE);
+  drawScene(mats);
+  depthTexture2->setCompareMode(GL_NONE);
+
   // A partir de aquí se dibuja la fuente de luz y el shadow map
   // Dibujamos la fuente (sin iluminación)
   ConstantIllumProgram::use();
@@ -287,8 +342,7 @@ void MyRender::render() {
   // Dibujamos la fuente 2 (sin iluminación)
   ConstantIllumProgram::use();
   mats->pushMatrix(GLMatrices::MODEL_MATRIX);
-  mats->rotate(GLMatrices::MODEL_MATRIX, glm::radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
-  mats->translate(GLMatrices::MODEL_MATRIX, vec3(lightPosition));
+  mats->translate(GLMatrices::MODEL_MATRIX, vec3(lightPosition2));
   luz.render();
   mats->popMatrix(GLMatrices::MODEL_MATRIX);
 
@@ -329,7 +383,7 @@ void MyRender::buildGUI() {
 
   auto ts = std::make_shared<ListBoxWidget<>>("Tamaño de textura", sizesNames, INITIAL_DEPTH_TEXTURE_SIZE_INDEX);
   ts->getValue().addListener([this](const GLint &i) {
-    prepareFBO(sizes[i], sizes[i]);
+    prepareFBOs(sizes[i], sizes[i]);
     currentTextureSize = sizes[i];
   });
   panel->addWidget(ts);
